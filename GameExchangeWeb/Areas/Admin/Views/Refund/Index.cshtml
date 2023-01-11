@@ -1,0 +1,59 @@
+﻿@{
+    var status = Context.Request.Query["status"];
+    var inprocess = "text-primary";
+    var refunded = "text-primary";
+    var all = "text-primary";
+
+    switch(status)
+    {
+        case "inprocess":
+            inprocess = "active text-white";
+            break;
+        case "refunded":
+            refunded = "active text-white";
+            break;
+        case "all":
+            all = "active text-white";
+            break;
+    }
+}
+
+<div class="p-3">
+    <div class="d-flex justify-content-between pt-4">
+        <div class="p-2">
+            <h2 class="text-primary">Refund List</h2>
+        </div>
+        <div class="p-2">
+            <ul class="list-group list-group-horizontal-sm">
+                <a style="text-decoration:none;" asp-controller="Refund" asp-action="Index" asp-route-status="inprocess">
+                    <li class="list-group-item @inprocess">Refund In Process</li>
+                </a>
+                <a style="text-decoration:none;" asp-controller="Refund" asp-action="Index" asp-route-status="refunded">
+                    <li class="list-group-item @refunded">Refunded</li>
+                </a>
+                <a style="text-decoration:none;" asp-controller="Refund" asp-action="Index" asp-route-status="all">
+                    <li class="list-group-item @all">All</li>
+                </a>
+            </ul>
+        </div>
+    </div>
+    <br />
+    <br />
+    <table id="refundData" class="table table-bordered table-strpied" style="width:100%">
+		<thead>
+			<tr>
+				<th>Id</th>
+				<th>Order Status</th>
+				<th>City</th>
+                <th></th>
+			</tr>
+		</thead>
+	</table>
+</div>
+
+@section Scripts {
+    <script src="~/js/refund.js"></script>
+}
+
+
+

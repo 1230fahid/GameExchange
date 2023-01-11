@@ -16,9 +16,7 @@ namespace GameExchange.Models
         public string Title { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
         [Required]
-        public string ISBN { get; set; } = string.Empty;
-        [Required]
-        public string Author { get; set; } = string.Empty;
+        public string Developer { get; set; } = string.Empty;
         [Required]
         [Display(Name = "List Price")]
         [Range(1, 10000)]
@@ -54,5 +52,8 @@ namespace GameExchange.Models
 		[ValidateNever]
 		public CoverType CoverType { get; set; }
 
+        [Required]
+        [Display(Name = "Quantity")]
+        public int Qty { get; set; }
     }
 }

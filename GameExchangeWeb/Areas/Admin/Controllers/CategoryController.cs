@@ -1,11 +1,14 @@
 ﻿using GameExchange.DataAccess.Data;
 using GameExchange.DataAccess.Repository.IRepository;
 using GameExchange.Models;
+using GameExchange.Utility;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GameExchangeWeb.Areas.Admin.Controllers
 {
     [Area("Admin")]
+    [Authorize(Roles = SD.Role_Admin)]
     public class CategoryController : Controller
     {
         //private readonly ICategoryRepository _db;
@@ -24,6 +27,7 @@ namespace GameExchangeWeb.Areas.Admin.Controllers
         }
 
         //GET action method
+        [Authorize]
         public IActionResult Create()
         {
             return View();

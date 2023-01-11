@@ -1,26 +1,30 @@
 ﻿using GameExchange.DataAccess.Data;
 using GameExchange.DataAccess.Repository.IRepository;
 using GameExchange.Models;
+using GameExchange.Utility;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GameExchangeWeb.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    public class CoverTypeController : Controller
+	[Authorize(Roles = SD.Role_Admin)]
+	public class CoverTypeController : Controller
     {
         //private readonly ICategoryRepository _db;
         private readonly IUnitOfWork _unitOfWork;
 
         public CoverTypeController(IUnitOfWork unitOfWork)
         {
-            _unitOfWork = unitOfWork;
-        }
+            _unitOfWork = unitOfWork;        }
         public IActionResult Index()
         {
             IEnumerable<CoverType> objCoverTypeList = _unitOfWork.CoverType.GetAll();
             return View(objCoverTypeList);
         }
 
+        [Authorize]
         //GET action method
         public IActionResult Create()
         {

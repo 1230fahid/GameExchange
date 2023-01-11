@@ -5,11 +5,11 @@ VisualStudioVersion = 17.4.33205.214
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameExchangeWeb", "GameExchangeWeb\GameExchangeWeb.csproj", "{E2F4F4A8-4974-4C15-A0FE-CAABA965F01F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameExchange.DataAccess", "GameExchange.DataAccess\GameExchange.DataAccess.csproj", "{CCC0269C-05CE-40A4-96F6-6F21216029DC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameExchange.DataAccess", "GameExchange.DataAccess\GameExchange.DataAccess.csproj", "{CCC0269C-05CE-40A4-96F6-6F21216029DC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameExchange.Models", "GameExchange.Models\GameExchange.Models.csproj", "{E19C2EC5-1D34-4761-8FA7-BD4FF97E0B98}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameExchange.Models", "GameExchange.Models\GameExchange.Models.csproj", "{E19C2EC5-1D34-4761-8FA7-BD4FF97E0B98}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameExchange.Utility", "GameExchange.Utility\GameExchange.Utility.csproj", "{6186D16E-9B63-4B2F-BDBA-72A60A5714FC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameExchange.Utility", "GameExchange.Utility\GameExchange.Utility.csproj", "{6186D16E-9B63-4B2F-BDBA-72A60A5714FC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

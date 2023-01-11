@@ -2,13 +2,16 @@
 using GameExchange.DataAccess.Repository.IRepository;
 using GameExchange.Models;
 using GameExchange.Models.ViewModels;
+using GameExchange.Utility;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace GameExchangeWeb.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    public class ProductController : Controller
+	[Authorize(Roles = SD.Role_Admin)]
+	public class ProductController : Controller
     {
         //private readonly IProductRepository _db;
         private readonly IUnitOfWork _unitOfWork;
