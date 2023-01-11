@@ -14,6 +14,13 @@ namespace GameExchange.DataAccess.Repository.IRepository
 
         IProductRepository Product { get; }
 
+		ICompanyRepository Company { get; }
+
+		IShoppingCartRepository ShoppingCart { get; }
+		IApplicationUserRepository ApplicationUser { get; }
+
+		IOrderHeaderRepository OrderHeader { get; }
+		IOrderDetailRepository OrderDetail { get; }
         void Save();
 	}
 }

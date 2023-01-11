@@ -21,14 +21,14 @@
 					<span asp-validation-for="Product.Description" class="text-danger"></span>  <!--makes it so that input is required-->
 				</div>
 				<div class="mb-3 col-6">
-					<label asp-for="Product.ISBN"></label>
-					<input asp-for="Product.ISBN" class="form-control" />
-					<span asp-validation-for="Product.ISBN" class="text-danger"></span>  <!--makes it so that input is required-->
+					<label asp-for="Product.Qty"></label>
+					<input asp-for="Product.Qty" class="form-control" />
+					<span asp-validation-for="Product.Qty" class="text-danger"></span>  <!--makes it so that input is required-->
 				</div>
 				<div class="mb-3 col-6">
-					<label asp-for="Product.Author"></label>
-					<input asp-for="Product.Author" class="form-control" />
-					<span asp-validation-for="Product.Author" class="text-danger"></span>  <!--makes it so that input is required-->
+					<label asp-for="Product.Developer"></label>
+					<input asp-for="Product.Developer" class="form-control" />
+					<span asp-validation-for="Product.Developer" class="text-danger"></span>  <!--makes it so that input is required-->
 				</div>
 				<div class="mb-3 col-6">
 					<label asp-for="Product.ListPrice"></label>
@@ -64,9 +64,9 @@
 					<span asp-validation-for="Product.CategoryId" class="text-danger"></span>  <!--makes it so that input is required-->
 				</div>
 				<div class="mb-3 col-6">
-					<label asp-for="Product.CoverTypeId"></label>
+					<label asp-for="Product.CoverTypeId">Game Format</label>
 					<select asp-for="Product.CoverTypeId" asp-items="@Model.CoverTypeList" class="form-select">
-						<option disabled selected>--Select CoverType--</option>
+						<option disabled selected>--Select Game Format--</option>
 					</select>
 					<span asp-validation-for="Product.CoverTypeId" class="text-danger"></span>  <!--makes it so that input is required-->
 				</div>

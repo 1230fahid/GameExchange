@@ -1,6 +1,8 @@
 ﻿using System.Diagnostics;
+using System.Security.Claims;
 using GameExchange.DataAccess.Repository.IRepository;
 using GameExchange.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GameExchangeWeb.Areas.Customer.Controllers
@@ -23,17 +25,48 @@ namespace GameExchangeWeb.Areas.Customer.Controllers
             return View(productList);
         }
 
-		public IActionResult Details(int id)
+		public IActionResult Details(int productId)
 		{
             ShoppingCart cartObj = new()
             {
                 Count = 1,
-                Product = _unitOfWork.Product.GetFirstOrDefault(u => u.Id == id, includeProperties: "Category,CoverType")
+                ProductId= productId,
+                Product = _unitOfWork.Product.GetFirstOrDefault(u => u.Id == productId, includeProperties: "Category,CoverType")
             };
 			return View(cartObj);
 		}
 
-		public IActionResult Privacy()
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize]
+        public IActionResult Details(ShoppingCart shoppingCart)
+        {
+            var claimsIdentity = (ClaimsIdentity)User.Identity; //type-cast to claims identity
+            var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
+            shoppingCart.ApplicationUserId = claim.Value;
+
+            ShoppingCart cartFromDb = _unitOfWork.ShoppingCart.GetFirstOrDefault(
+                u => u.ApplicationUserId == claim.Value && u.ProductId == shoppingCart.ProductId);
+
+            Product cartProduct = _unitOfWork.Product.GetFirstOrDefault(u => u.Id == shoppingCart.ProductId, includeProperties: "Category,CoverType");
+            cartProduct.Qty -= shoppingCart.Count;
+
+            if (cartFromDb == null)
+            {
+                _unitOfWork.ShoppingCart.Add(shoppingCart);                
+            }
+            else
+            {
+                _unitOfWork.ShoppingCart.IncrementCount(cartFromDb, shoppingCart.Count);
+            }
+
+            _unitOfWork.Save();
+
+            //return RedirectToAction("Index");
+            return RedirectToAction(nameof(Index));
+        }
+
+        public IActionResult Privacy()
         {
             return View();
         }
