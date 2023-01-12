@@ -253,9 +253,14 @@
 								</li>
 							</ul>
 
-							@if ((!User.IsInRole(SD.Role_Admin) && !User.IsInRole(SD.Role_Employee)) && (Model.OrderHeader.PaymentStatus == SD.PaymentStatusApproved) && (Model.OrderHeader.OrderStatus == SD.StatusShipped))
+							@if ((!User.IsInRole(SD.Role_Admin) && !User.IsInRole(SD.Role_Employee)) && (Model.OrderHeader.PaymentStatus == SD.PaymentStatusApproved) && (Model.OrderHeader.OrderStatus == SD.StatusShipped || Model.OrderHeader.OrderStatus == SD.StatusApproved || Model.OrderHeader.OrderStatus == SD.StatusInProcess))
 							{
-								<input type="submit" asp-action="Refunds" class="btn btn-success form-control my-1" value="Request Refund" />
+								<input type="submit" asp-action="RefundRequest" class="btn btn-success form-control my-1" value="Request Refund" />
+							}
+
+							@if ((!User.IsInRole(SD.Role_Admin) && !User.IsInRole(SD.Role_Employee)) && (Model.OrderHeader.PaymentStatus == SD.PaymentStatusDelayedPayment || Model.OrderHeader.PaymentStatus == SD.PaymentStatusPending) && (Model.OrderHeader.OrderStatus == SD.StatusShipped || Model.OrderHeader.OrderStatus == SD.StatusApproved || Model.OrderHeader.OrderStatus == SD.StatusInProcess || Model.OrderHeader.OrderStatus == SD.StatusPending))
+							{
+								<input type="submit" asp-action="CancelRequest" class="btn btn-danger form-control my-1" value="Cancel Order " />
 							}
 
 							@if ((Model.OrderHeader.PaymentStatus == SD.PaymentStatusDelayedPayment && Model.OrderHeader.OrderStatus == SD.StatusShipped) || (Model.OrderHeader.PaymentStatus == SD.PaymentStatusPending && Model.OrderHeader.OrderStatus == SD.StatusPending))
@@ -266,6 +271,11 @@
 							@if ((Model.OrderHeader.PaymentStatus == SD.PaymentStatusRefundInProcess) && (Model.OrderHeader.OrderStatus == SD.StatusRefundInProcess))
 							{
 								<input class="btn btn-dark form-control my-1" value="Refund In Process..." disabled/>
+							}
+
+							@if ((Model.OrderHeader.PaymentStatus == SD.PaymentStatusCancelInProcess) && (Model.OrderHeader.OrderStatus == SD.StatusCancelInProcess))
+							{
+								<input class="btn btn-dark form-control my-1" value="Cancel In Process..." disabled />
 							}
 
 							@if(User.IsInRole(SD.Role_Admin) || User.IsInRole(SD.Role_Employee))
@@ -282,6 +292,15 @@
 								{
 									<input type="submit" asp-action="CancelOrder" class="btn btn-danger form-control my-1" value="Cancel Order" />
 								}*/
+								@if(Model.OrderHeader.OrderStatus == SD.StatusCancelInProcess && Model.OrderHeader.PaymentStatus == SD.PaymentStatusCancelInProcess)
+								{
+									<input type="submit" asp-action="CancelOrder" class="btn btn-danger form-control my-1" value="Cancel Order" />
+								}
+
+								@if (Model.OrderHeader.OrderStatus == SD.StatusRefundInProcess && Model.OrderHeader.PaymentStatus == SD.PaymentStatusRefundInProcess)
+								{
+									<input type="submit" asp-action="RefundOrder" class="btn btn-danger form-control my-1" value="Refund Order" />
+								}
 							}
 						</div>
 					</div>

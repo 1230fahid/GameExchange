@@ -189,6 +189,29 @@ namespace GameExchangeWeb.Areas.Admin.Controllers
 			return RedirectToAction("Details", "Order", new { orderId = OrderVM.OrderHeader.Id });
 		}
 
+		[HttpPost]
+		[ValidateAntiForgeryToken]
+		[Authorize(Roles =SD.Role_User_Indi + "," + SD.Role_User_Comp)]
+		public IActionResult RefundRequest()
+		{
+			OrderHeader refundedOrder = _unitOfWork.OrderHeader.GetFirstOrDefault(u => u.Id == OrderVM.OrderHeader.Id);
+			refundedOrder.OrderStatus = SD.StatusRefundInProcess;
+			refundedOrder.PaymentStatus = SD.PaymentStatusRefundInProcess;
+			_unitOfWork.Save();
+			return RedirectToAction("Details", "Order", new { orderId = refundedOrder.Id });
+		}
+
+		[HttpPost]
+		[ValidateAntiForgeryToken]
+		[Authorize(Roles = SD.Role_User_Indi + "," + SD.Role_User_Comp)]
+		public IActionResult CancelRequest()
+		{
+			OrderHeader refundedOrder = _unitOfWork.OrderHeader.GetFirstOrDefault(u => u.Id == OrderVM.OrderHeader.Id);
+			refundedOrder.OrderStatus = SD.StatusCancelInProcess;
+			refundedOrder.PaymentStatus = SD.PaymentStatusCancelInProcess;
+			_unitOfWork.Save();
+			return RedirectToAction("Details", "Order", new { orderId = refundedOrder.Id });
+		}
 
 		[HttpPost]
 		[Authorize(Roles = SD.Role_Admin + "," + SD.Role_Employee)]
@@ -196,39 +219,29 @@ namespace GameExchangeWeb.Areas.Admin.Controllers
 		public IActionResult CancelOrder()
 		{
 			var orderHeader = _unitOfWork.OrderHeader.GetFirstOrDefault(u => u.Id == OrderVM.OrderHeader.Id, tracked: false);
-			if(orderHeader.PaymentStatus == SD.PaymentStatusApproved) //payment went through so we need to refund
-			{
-				var options = new RefundCreateOptions //if we don't give an amount, then the default amount is sent back, which is just however much the payment was
-				{
-					Reason = RefundReasons.RequestedByCustomer,
-					PaymentIntent = orderHeader.PaymentIntentId,
-				};
-
-				var service = new RefundService();
-				Refund refund = service.Create(options); //goes to the actual portal and makes the actual refund on stripe
-
-				_unitOfWork.OrderHeader.UpdateStatus(orderHeader.Id, SD.StatusCancelled, SD.StatusRefunded);
-			}
-			else
-			{
-				_unitOfWork.OrderHeader.UpdateStatus(orderHeader.Id, SD.StatusCancelled, SD.StatusCancelled);
-			}
-
+			_unitOfWork.OrderHeader.UpdateStatus(orderHeader.Id, SD.StatusCancelled, SD.StatusCancelled);
 			_unitOfWork.Save();
 			TempData["Success"] = "Order Cancelled Successfully";
 			return RedirectToAction("Details", "Order", new { orderId = orderHeader.Id });
 		}
 
 		[HttpPost]
+		[Authorize(Roles = SD.Role_Admin + "," + SD.Role_Employee)]
 		[ValidateAntiForgeryToken]
-		[Authorize(Roles =SD.Role_User_Indi + "," + SD.Role_User_Comp)]
-		public IActionResult Refunds()
+		public IActionResult RefundOrder()
 		{
-			OrderHeader refundedOrder = _unitOfWork.OrderHeader.GetFirstOrDefault(u => u.Id == OrderVM.OrderHeader.Id);
-			refundedOrder.OrderStatus = SD.StatusRefundInProcess;
-			refundedOrder.PaymentStatus = SD.PaymentStatusRefundInProcess;
+			var orderHeader = _unitOfWork.OrderHeader.GetFirstOrDefault(u => u.Id == OrderVM.OrderHeader.Id, tracked: false);
+			var options = new RefundCreateOptions //if we don't give an amount, then the default amount is sent back, which is just however much the payment was
+			{
+				Reason = RefundReasons.RequestedByCustomer,
+				PaymentIntent = orderHeader.PaymentIntentId,
+			};
+			var service = new RefundService();
+			Refund refund = service.Create(options); //goes to the actual portal and makes the actual refund on stripe
+			_unitOfWork.OrderHeader.UpdateStatus(orderHeader.Id, SD.StatusRefunded, SD.PaymentStatusRefunded);
 			_unitOfWork.Save();
-			return RedirectToAction("Details", "Order", new { orderId = refundedOrder.Id });
+			TempData["Success"] = "Order Refunded Successfully";
+			return RedirectToAction("Details", "Order", new { orderId = orderHeader.Id });
 		}
 
 		#region API CALLS

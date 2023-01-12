@@ -14,6 +14,7 @@
 		public const string StatusCancelled = "Cancelled";
 		public const string StatusRefunded = "Refunded";
 		public const string StatusRefundInProcess = "RefundInProcess";
+		public const string StatusCancelInProcess = "CancelInProcess";
 
 		public const string PaymentStatusPending = "Pending";
 		public const string PaymentStatusApproved = "Approved";
@@ -21,5 +22,6 @@
 		public const string PaymentStatusRejected = "Rejected";
 		public const string PaymentStatusRefunded = "Refunded";
 		public const string PaymentStatusRefundInProcess = "RefundInProcess";
+		public const string PaymentStatusCancelInProcess = "CancelInProcess";
 	}
 }
