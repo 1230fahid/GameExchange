@@ -29,4 +29,8 @@
     <PackageReference Include="MimeKit" Version="3.4.3" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\GameExchange.DataAccess\GameExchange.DataAccess.csproj" />
+  </ItemGroup>
+
 </Project>

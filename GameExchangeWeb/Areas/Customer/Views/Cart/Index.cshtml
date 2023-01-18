@@ -24,9 +24,9 @@
 				{
 					<div class="row">
 						<div class="d-none d-lg-block col-lg-1 text-center py-2">
-							<img src="@(shoppingCart.Product.ImageUrl)" class="rounded" style="width:90px; height:90px;" />
+							<img src="@(shoppingCart.Product.ImageUrl)" class="rounded" style="width:100%; height:100%;" />
 						</div>
-						<div class="col-12 col-lg-6 pt-md-3">
+						<div class="col-12 col-lg-6 mx-1 p-0">
 							<h5 class="text-info"><strong>@(shoppingCart.Product.Title)</strong></h5>
 							<p><small>@(shoppingCart.Product.Description)</small></p>
 						</div>
@@ -75,25 +75,48 @@
 				}
 
 				<div class="row">
-					<div class="col-12 col-md-6 offset-md-6 col-lg-4 offset-lg-8 pr-4">
-						<ul class="list-group">
-							<li class="list-group-item d-flex justify-content-between bg-light">
-								<span class="text-info"> Total (USD)</span>
-								<strong class="text-info">@Model.OrderHeader.OrderTotal.ToString("c")</strong>
-							</li>
-						</ul>
+					<div class="" style="display: flex; flex-direction: row; justify-content: center;">
+						<div style="width: 100%; display: flex; flex-direction: row; justify-content: flex-start">
+							<div class="">
+								<div class="form-group">
+									<label for="cur">Select currency:</label>
+									<select class="form-control p-0" id="cur" style="text-align: center;">
+										<option value="usd">usd</option>
+										<option value="cad">cad</option>
+										<option value="gbp">gbp</option>
+										<option value="jpy">jpy</option>
+									</select>
+								</div>
+							</div>
+						</div>
+						<div style="width: 100%; display: flex; flex-direction: row; justify-content: flex-end">
+							<ul class="list-group" style="width: 50%;">
+								<li class="list-group-item d-flex justify-content-between bg-light">
+									<span class="text-info"> Total (USD)</span>
+									<strong class="text-info">@Model.OrderHeader.OrderTotal.ToString("c")</strong>
+								</li>
+							</ul>
+						</div>
 					</div>
 				</div>
-
 			</div>
 
 			<div class="card-footer">
 				<div class="card-footer row">
 					<div class="col-sm-12 col-lg-4 col-md-6 offset-lg-8 offset-md-6 ">
-						<a asp-action="Summary" class="btn btn-success form-control">Summary</a>
+						<a asp-action="Summary" class="btn btn-success form-control" onmouseover="selectItem()">Summary</a>
 					</div>
 				</div>
 			</div>
 		</div>
 	</div>
 </form>
+
+@section Scripts{
+	<script>
+		var selectItem = () => {
+			console.log(document.querySelector("#cur").value)
+			return document.querySelector("#cur").value
+		}
+	</script>
+}

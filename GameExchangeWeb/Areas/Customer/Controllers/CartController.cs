@@ -16,7 +16,8 @@ namespace GameExchangeWeb.Areas.Customer.Controllers
     {
         private readonly IUnitOfWork _unitOfWork;
 		private readonly IEmailSender _emailSender;
-        public ShoppingCartVM ShoppingCartVM { get; set; }
+		[BindProperty]
+		public ShoppingCartVM ShoppingCartVM { get; set; }
 
         public CartController(IUnitOfWork unitOfWork, IEmailSender emailSender)
         {
@@ -100,7 +101,6 @@ namespace GameExchangeWeb.Areas.Customer.Controllers
 			ShoppingCartVM.OrderHeader.OrderTotal = totalPrice;
 
 			ViewData["Total"] = Math.Round(totalPrice, 2);
-
 			return View(ShoppingCartVM);
 		}
 
@@ -248,7 +248,7 @@ namespace GameExchangeWeb.Areas.Customer.Controllers
 				}
 			}
 
-			_emailSender.SendEmailAsync(orderHeader.ApplicationUser.Email, "New Order - Game Exchange", "<p>New Order Created</p>"); //send email when order is confirmed  
+			//_emailSender.SendEmailAsync(orderHeader.ApplicationUser.Email, "New Order - Game Exchange", "<p>New Order Created</p>"); //send email when order is confirmed  
 
 			List<ShoppingCart> shoppingCarts = _unitOfWork.ShoppingCart.GetAll(u => u.ApplicationUserId == orderHeader.ApplicationUserId).ToList();
 			_unitOfWork.ShoppingCart.RemoveRange(shoppingCarts);

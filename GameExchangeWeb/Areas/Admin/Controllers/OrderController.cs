@@ -6,6 +6,7 @@ using GameExchange.Models;
 using GameExchange.Models.ViewModels;
 using GameExchange.Utility;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Stripe;
 using Stripe.Checkout;
@@ -17,12 +18,14 @@ namespace GameExchangeWeb.Areas.Admin.Controllers
 	public class OrderController : Controller
 	{
 		private readonly IUnitOfWork _unitOfWork;
+		private readonly IEmailSender _emailSender;
 
 		[BindProperty]
 		public OrderVM OrderVM { get; set; }
-		public OrderController(IUnitOfWork unitOfWork)
+		public OrderController(IUnitOfWork unitOfWork, IEmailSender emailSender)
 		{
 			_unitOfWork= unitOfWork;
+			_emailSender = emailSender;
 		}
 		public IActionResult Index()
 		{
@@ -222,6 +225,17 @@ namespace GameExchangeWeb.Areas.Admin.Controllers
 			_unitOfWork.OrderHeader.UpdateStatus(orderHeader.Id, SD.StatusCancelled, SD.StatusCancelled);
 			_unitOfWork.Save();
 			TempData["Success"] = "Order Cancelled Successfully";
+			_emailSender.SendEmailAsync(orderHeader.ApplicationUser.UserName, "Cancel Request", "<p>Order Cancelled</p>");
+
+			IEnumerable<OrderDetail> orderDetails = _unitOfWork.OrderDetail.GetAll(u => u.OrderId == OrderVM.OrderHeader.Id);
+			foreach(var orderDetail in orderDetails)
+			{
+				GameExchange.Models.Product product = _unitOfWork.Product.GetFirstOrDefault(u => u.Id == orderDetail.ProductId);
+				product.Qty += orderDetail.Count;
+				_unitOfWork.Save();
+			}
+
+
 			return RedirectToAction("Details", "Order", new { orderId = orderHeader.Id });
 		}
 
@@ -241,6 +255,17 @@ namespace GameExchangeWeb.Areas.Admin.Controllers
 			_unitOfWork.OrderHeader.UpdateStatus(orderHeader.Id, SD.StatusRefunded, SD.PaymentStatusRefunded);
 			_unitOfWork.Save();
 			TempData["Success"] = "Order Refunded Successfully";
+
+			IEnumerable<OrderDetail> orderDetails = _unitOfWork.OrderDetail.GetAll(u => u.OrderId == OrderVM.OrderHeader.Id);
+			foreach (var orderDetail in orderDetails)
+			{
+				GameExchange.Models.Product product = _unitOfWork.Product.GetFirstOrDefault(u => u.Id == orderDetail.ProductId);
+				product.Qty += orderDetail.Count;
+				_unitOfWork.Save();
+			}
+
+			ApplicationUser User = _unitOfWork.ApplicationUser.GetFirstOrDefault(u => u.Id == orderHeader.ApplicationUserId);
+			_emailSender.SendEmailAsync(User.UserName, "Refund Request", "<p>Order Refunded</p>");
 			return RedirectToAction("Details", "Order", new { orderId = orderHeader.Id });
 		}
 
