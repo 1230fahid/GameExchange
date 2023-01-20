@@ -23,5 +23,7 @@
 		public const string PaymentStatusRefunded = "Refunded";
 		public const string PaymentStatusRefundInProcess = "RefundInProcess";
 		public const string PaymentStatusCancelInProcess = "CancelInProcess";
+
+		public const string SessionCart = "SessionShoppingCart";
 	}
 }

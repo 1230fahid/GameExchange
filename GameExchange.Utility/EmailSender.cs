@@ -1,19 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using MailKit.Net.Smtp;
+﻿using MailKit.Net.Smtp;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using MimeKit;
-using System.Security.Claims;
-using GameExchange.DataAccess.Repository.IRepository;
-using GameExchange.DataAccess.Data;
-using Microsoft.AspNetCore.Identity;
-using GameExchange.Models;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using Microsoft.AspNetCore.Http;
-using GameExchange.DataAccess.Repository;
 
 namespace GameExchange.Utility
 {

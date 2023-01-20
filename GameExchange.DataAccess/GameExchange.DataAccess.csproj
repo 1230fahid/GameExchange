@@ -29,6 +29,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\GameExchange.Models\GameExchange.Models.csproj" />
+	  <ProjectReference Include="..\GameExchange.Utility\GameExchange.Utility.csproj" />
   </ItemGroup>
 
 </Project>

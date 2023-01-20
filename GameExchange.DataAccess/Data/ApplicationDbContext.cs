@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GameExchange.DataAccess.Data
 {
-    public class ApplicationDbContext : IdentityDbContext //DbContext //this class is how we interact with a database 
+    public class ApplicationDbContext : IdentityDbContext, IApplicationDbContext //DbContext //this class is how we interact with a database 
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) //will receive some options that we also want to pass to base class
         {

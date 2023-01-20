@@ -2,6 +2,7 @@
 using System.Security.Claims;
 using GameExchange.DataAccess.Repository.IRepository;
 using GameExchange.Models;
+using GameExchange.Utility;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -53,14 +54,15 @@ namespace GameExchangeWeb.Areas.Customer.Controllers
 
             if (cartFromDb == null)
             {
-                _unitOfWork.ShoppingCart.Add(shoppingCart);                
+                _unitOfWork.ShoppingCart.Add(shoppingCart);
+                _unitOfWork.Save();
+                HttpContext.Session.SetInt32(SD.SessionCart, _unitOfWork.ShoppingCart.GetAll(u => u.ApplicationUserId == claim.Value).ToList().Count); //this is used to set session
             }
             else
             {
                 _unitOfWork.ShoppingCart.IncrementCount(cartFromDb, shoppingCart.Count);
+                _unitOfWork.Save();
             }
-
-            _unitOfWork.Save();
 
             //return RedirectToAction("Index");
             return RedirectToAction(nameof(Index));

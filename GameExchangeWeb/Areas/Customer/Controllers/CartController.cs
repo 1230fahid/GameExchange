@@ -251,6 +251,7 @@ namespace GameExchangeWeb.Areas.Customer.Controllers
 			//_emailSender.SendEmailAsync(orderHeader.ApplicationUser.Email, "New Order - Game Exchange", "<p>New Order Created</p>"); //send email when order is confirmed  
 
 			List<ShoppingCart> shoppingCarts = _unitOfWork.ShoppingCart.GetAll(u => u.ApplicationUserId == orderHeader.ApplicationUserId).ToList();
+			HttpContext.Session.Clear(); //once order goes through
 			_unitOfWork.ShoppingCart.RemoveRange(shoppingCarts);
 			_unitOfWork.Save();
 			return View(id);
@@ -274,7 +275,9 @@ namespace GameExchangeWeb.Areas.Customer.Controllers
 			if (cart.Count <= 1)
             {
 				_unitOfWork.ShoppingCart.Remove(cart);
-			}
+                var count = _unitOfWork.ShoppingCart.GetAll(u => u.ApplicationUserId == cart.ApplicationUserId).ToList().Count;
+                HttpContext.Session.SetInt32(SD.SessionCart, count);
+            }
             else
             {
 				_unitOfWork.ShoppingCart.DecrementCount(cart, 1);
@@ -290,6 +293,8 @@ namespace GameExchangeWeb.Areas.Customer.Controllers
 			product.Qty += cart.Count;
 			_unitOfWork.ShoppingCart.Remove(cart);
 			_unitOfWork.Save();
+			var count = _unitOfWork.ShoppingCart.GetAll(u => u.ApplicationUserId == cart.ApplicationUserId).ToList().Count;
+			HttpContext.Session.SetInt32(SD.SessionCart, count);
 			return RedirectToAction("Index");
 		}
 	}
