@@ -18,6 +18,7 @@ namespace GameExchangeWeb.Areas.Admin.Controllers
         {
             _unitOfWork = unitOfWork;
         }
+
         public IActionResult Index()
         {
             //IEnumerable<Category> objCategoryList = _db.Categories.ToList();
@@ -44,13 +45,6 @@ namespace GameExchangeWeb.Areas.Admin.Controllers
             }
             if (ModelState.IsValid)
             {
-
-                //_db.Categories.Add(obj);
-                //_db.SaveChanges();
-                //return View();
-
-                //_db.Add(obj);
-                //_db.Save();
 
                 _unitOfWork.Category.Add(obj);
                 _unitOfWork.Save();

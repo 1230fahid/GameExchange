@@ -6,6 +6,7 @@ using GameExchange.Models;
 using GameExchange.Models.ViewModels;
 using GameExchange.Utility;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Stripe;
 using Stripe.Checkout;
@@ -17,12 +18,14 @@ namespace GameExchangeWeb.Areas.Admin.Controllers
 	public class OrderController : Controller
 	{
 		private readonly IUnitOfWork _unitOfWork;
+		private readonly IEmailSender _emailSender;
 
 		[BindProperty]
 		public OrderVM OrderVM { get; set; }
-		public OrderController(IUnitOfWork unitOfWork)
+		public OrderController(IUnitOfWork unitOfWork, IEmailSender emailSender)
 		{
 			_unitOfWork= unitOfWork;
+			_emailSender = emailSender;
 		}
 		public IActionResult Index()
 		{
@@ -48,7 +51,8 @@ namespace GameExchangeWeb.Areas.Admin.Controllers
 			OrderVM.OrderDetailList = _unitOfWork.OrderDetail.GetAll(u => u.OrderId == OrderVM.OrderHeader.Id, includeProperties: "Product");
 
 			//stripe settings
-			var domain = "https://localhost:44322/";
+			//var domain = "https://localhost:44322/";
+			var domain = "https://gameexchange.azurewebsites.net/";
 			var options = new SessionCreateOptions
 			{
 				LineItems = new List<SessionLineItemOptions>()
@@ -189,6 +193,29 @@ namespace GameExchangeWeb.Areas.Admin.Controllers
 			return RedirectToAction("Details", "Order", new { orderId = OrderVM.OrderHeader.Id });
 		}
 
+		[HttpPost]
+		[ValidateAntiForgeryToken]
+		[Authorize(Roles =SD.Role_User_Indi + "," + SD.Role_User_Comp)]
+		public IActionResult RefundRequest()
+		{
+			OrderHeader refundedOrder = _unitOfWork.OrderHeader.GetFirstOrDefault(u => u.Id == OrderVM.OrderHeader.Id);
+			refundedOrder.OrderStatus = SD.StatusRefundInProcess;
+			refundedOrder.PaymentStatus = SD.PaymentStatusRefundInProcess;
+			_unitOfWork.Save();
+			return RedirectToAction("Details", "Order", new { orderId = refundedOrder.Id });
+		}
+
+		[HttpPost]
+		[ValidateAntiForgeryToken]
+		[Authorize(Roles = SD.Role_User_Indi + "," + SD.Role_User_Comp)]
+		public IActionResult CancelRequest()
+		{
+			OrderHeader refundedOrder = _unitOfWork.OrderHeader.GetFirstOrDefault(u => u.Id == OrderVM.OrderHeader.Id);
+			refundedOrder.OrderStatus = SD.StatusCancelInProcess;
+			refundedOrder.PaymentStatus = SD.PaymentStatusCancelInProcess;
+			_unitOfWork.Save();
+			return RedirectToAction("Details", "Order", new { orderId = refundedOrder.Id });
+		}
 
 		[HttpPost]
 		[Authorize(Roles = SD.Role_Admin + "," + SD.Role_Employee)]
@@ -196,39 +223,50 @@ namespace GameExchangeWeb.Areas.Admin.Controllers
 		public IActionResult CancelOrder()
 		{
 			var orderHeader = _unitOfWork.OrderHeader.GetFirstOrDefault(u => u.Id == OrderVM.OrderHeader.Id, tracked: false);
-			if(orderHeader.PaymentStatus == SD.PaymentStatusApproved) //payment went through so we need to refund
-			{
-				var options = new RefundCreateOptions //if we don't give an amount, then the default amount is sent back, which is just however much the payment was
-				{
-					Reason = RefundReasons.RequestedByCustomer,
-					PaymentIntent = orderHeader.PaymentIntentId,
-				};
-
-				var service = new RefundService();
-				Refund refund = service.Create(options); //goes to the actual portal and makes the actual refund on stripe
-
-				_unitOfWork.OrderHeader.UpdateStatus(orderHeader.Id, SD.StatusCancelled, SD.StatusRefunded);
-			}
-			else
-			{
-				_unitOfWork.OrderHeader.UpdateStatus(orderHeader.Id, SD.StatusCancelled, SD.StatusCancelled);
-			}
-
+			_unitOfWork.OrderHeader.UpdateStatus(orderHeader.Id, SD.StatusCancelled, SD.StatusCancelled);
 			_unitOfWork.Save();
+            IEnumerable<OrderDetail> orderDetails = _unitOfWork.OrderDetail.GetAll(u => u.OrderId == OrderVM.OrderHeader.Id);
+            foreach (var orderDetail in orderDetails)
+            {
+                GameExchange.Models.Product product = _unitOfWork.Product.GetFirstOrDefault(u => u.Id == orderDetail.ProductId);
+                product.Qty += orderDetail.Count;
+                _unitOfWork.Save();
+            }
+            ApplicationUser user = _unitOfWork.ApplicationUser.GetFirstOrDefault(u => u.Id == orderHeader.ApplicationUserId);
 			TempData["Success"] = "Order Cancelled Successfully";
+			_emailSender.SendEmailAsync(user.UserName, "Cancel Request", "<p>Order Cancelled</p>");
+
 			return RedirectToAction("Details", "Order", new { orderId = orderHeader.Id });
 		}
 
 		[HttpPost]
+		[Authorize(Roles = SD.Role_Admin + "," + SD.Role_Employee)]
 		[ValidateAntiForgeryToken]
-		[Authorize(Roles =SD.Role_User_Indi + "," + SD.Role_User_Comp)]
-		public IActionResult Refunds()
+		public IActionResult RefundOrder()
 		{
-			OrderHeader refundedOrder = _unitOfWork.OrderHeader.GetFirstOrDefault(u => u.Id == OrderVM.OrderHeader.Id);
-			refundedOrder.OrderStatus = SD.StatusRefundInProcess;
-			refundedOrder.PaymentStatus = SD.PaymentStatusRefundInProcess;
+			var orderHeader = _unitOfWork.OrderHeader.GetFirstOrDefault(u => u.Id == OrderVM.OrderHeader.Id, tracked: false);
+			var options = new RefundCreateOptions //if we don't give an amount, then the default amount is sent back, which is just however much the payment was
+			{
+				Reason = RefundReasons.RequestedByCustomer,
+				PaymentIntent = orderHeader.PaymentIntentId,
+			};
+			var service = new RefundService();
+			Refund refund = service.Create(options); //goes to the actual portal and makes the actual refund on stripe
+			_unitOfWork.OrderHeader.UpdateStatus(orderHeader.Id, SD.StatusRefunded, SD.PaymentStatusRefunded);
 			_unitOfWork.Save();
-			return RedirectToAction("Details", "Order", new { orderId = refundedOrder.Id });
+			TempData["Success"] = "Order Refunded Successfully";
+
+			IEnumerable<OrderDetail> orderDetails = _unitOfWork.OrderDetail.GetAll(u => u.OrderId == OrderVM.OrderHeader.Id);
+			foreach (var orderDetail in orderDetails)
+			{
+				GameExchange.Models.Product product = _unitOfWork.Product.GetFirstOrDefault(u => u.Id == orderDetail.ProductId);
+				product.Qty += orderDetail.Count;
+				_unitOfWork.Save();
+			}
+
+			ApplicationUser User = _unitOfWork.ApplicationUser.GetFirstOrDefault(u => u.Id == orderHeader.ApplicationUserId);
+			_emailSender.SendEmailAsync(User.UserName, "Refund Request", "<p>Order Refunded</p>");
+			return RedirectToAction("Details", "Order", new { orderId = orderHeader.Id });
 		}
 
 		#region API CALLS
