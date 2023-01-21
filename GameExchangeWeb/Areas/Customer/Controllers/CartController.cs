@@ -171,7 +171,8 @@ namespace GameExchangeWeb.Areas.Customer.Controllers
 			if (applicationUser.CompanyId.GetValueOrDefault() == 0) 
 			{
 				//stripe settings
-				var domain = "https://localhost:44322/";
+				//var domain = "https://localhost:44322/";
+				var domain = "https://gameexchange.azurewebsites.net/";
 				var options = new SessionCreateOptions
 				{
 					LineItems = new List<SessionLineItemOptions>()
@@ -275,14 +276,15 @@ namespace GameExchangeWeb.Areas.Customer.Controllers
 			if (cart.Count <= 1)
             {
 				_unitOfWork.ShoppingCart.Remove(cart);
-                var count = _unitOfWork.ShoppingCart.GetAll(u => u.ApplicationUserId == cart.ApplicationUserId).ToList().Count;
+				_unitOfWork.Save();
+				var count = _unitOfWork.ShoppingCart.GetAll(u => u.ApplicationUserId == cart.ApplicationUserId).ToList().Count;
                 HttpContext.Session.SetInt32(SD.SessionCart, count);
             }
             else
             {
 				_unitOfWork.ShoppingCart.DecrementCount(cart, 1);
+				_unitOfWork.Save();
 			}
-			_unitOfWork.Save();
 			return RedirectToAction("Index");
 		}
 

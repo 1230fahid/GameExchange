@@ -17,9 +17,59 @@ body {
   margin-bottom: 60px;
 }
 
-footer {
-    position: absolute;
+#content-wrap{
+    padding-bottom: 2rem;
+}
+
+#footer {
+    position: fixed;
     bottom: 0;
     width: 100%;
     height: 2.5rem; /* Footer height */
+}
+
+#product {
+    width: 100%;
+    height: 100%;
+    background-color: rgb(225, 225, 225);
+}
+
+#product:hover {
+    box-shadow: 0.5px 0.5px 1px 1px rgba(0, 0, 0, 0.2);
+    z-index: 10;
+}
+
+#images {
+    height: 350px;
+}
+
+@media (max-width: 320px){
+    #images{
+        height:150px;
+    }
+}
+
+@media (min-width: 321px) and (max-width: 429px) {
+    #images {
+        height: 245px;
+    }
+}
+
+@media (min-width: 430px) and (max-width: 500px) {
+    #images {
+        height: 275px;
+    }
+}
+
+@media (min-width: 501px) and (max-width: 768px) {
+    #images {
+        height: 250px;
+    }
+}
+
+@media (max-width: 991px){
+    #detailForm {
+        overflow-x: auto;
+        overflow-y: auto;
+    }
 }

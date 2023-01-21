@@ -51,7 +51,8 @@ namespace GameExchangeWeb.Areas.Admin.Controllers
 			OrderVM.OrderDetailList = _unitOfWork.OrderDetail.GetAll(u => u.OrderId == OrderVM.OrderHeader.Id, includeProperties: "Product");
 
 			//stripe settings
-			var domain = "https://localhost:44322/";
+			//var domain = "https://localhost:44322/";
+			var domain = "https://gameexchange.azurewebsites.net/";
 			var options = new SessionCreateOptions
 			{
 				LineItems = new List<SessionLineItemOptions>()
@@ -224,17 +225,16 @@ namespace GameExchangeWeb.Areas.Admin.Controllers
 			var orderHeader = _unitOfWork.OrderHeader.GetFirstOrDefault(u => u.Id == OrderVM.OrderHeader.Id, tracked: false);
 			_unitOfWork.OrderHeader.UpdateStatus(orderHeader.Id, SD.StatusCancelled, SD.StatusCancelled);
 			_unitOfWork.Save();
+            IEnumerable<OrderDetail> orderDetails = _unitOfWork.OrderDetail.GetAll(u => u.OrderId == OrderVM.OrderHeader.Id);
+            foreach (var orderDetail in orderDetails)
+            {
+                GameExchange.Models.Product product = _unitOfWork.Product.GetFirstOrDefault(u => u.Id == orderDetail.ProductId);
+                product.Qty += orderDetail.Count;
+                _unitOfWork.Save();
+            }
+            ApplicationUser user = _unitOfWork.ApplicationUser.GetFirstOrDefault(u => u.Id == orderHeader.ApplicationUserId);
 			TempData["Success"] = "Order Cancelled Successfully";
-			_emailSender.SendEmailAsync(orderHeader.ApplicationUser.UserName, "Cancel Request", "<p>Order Cancelled</p>");
-
-			IEnumerable<OrderDetail> orderDetails = _unitOfWork.OrderDetail.GetAll(u => u.OrderId == OrderVM.OrderHeader.Id);
-			foreach(var orderDetail in orderDetails)
-			{
-				GameExchange.Models.Product product = _unitOfWork.Product.GetFirstOrDefault(u => u.Id == orderDetail.ProductId);
-				product.Qty += orderDetail.Count;
-				_unitOfWork.Save();
-			}
-
+			_emailSender.SendEmailAsync(user.UserName, "Cancel Request", "<p>Order Cancelled</p>");
 
 			return RedirectToAction("Details", "Order", new { orderId = orderHeader.Id });
 		}
